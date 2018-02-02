@@ -1,6 +1,6 @@
 package main
 
-type Photo struct {
+type Country struct {
 	ID int64 `json:"id"`
-	Url string `json:"url"`
+	Count int64 `json:"count"`
 }

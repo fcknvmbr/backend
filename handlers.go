@@ -9,30 +9,41 @@ func notFoundHandler(ctx iris.Context) {
 
 func getHandler(ctx iris.Context) {
 
-	from := ctx.URLParam("from")
-	count := ctx.URLParam("count")
+	id := ctx.URLParam("id")
 
-	if from == "" {
-		from = "0"
+	if (id == "") {
+		var country []Country
+		db.Find(&country)
+		ctx.JSON(country)
+	} else {
+		var country Country
+		db.Where("id = ?", id).Find(&country)
+		ctx.JSON(country)
 	}
 
-	if count == "" {
-		count = "20"
-	}
-
-	var post []Photo
-	db.Where("id >= ?", from).Limit(count).Find(&post)
-
-	ctx.JSON(post)
 }
 
 func addHandler(ctx iris.Context) {
 
-	var post Photo
+	var action Action
 
-	ctx.ReadJSON(&post)
-	db.Create(&post)
-	db.Save(&post)
+	ctx.ReadJSON(&action)
 
-	ctx.JSON(post)
+	var country Country
+
+	db.First(&country, action.ID) // find product with id 1
+
+	newCount := country.Count
+
+	if (action.Type == 1) {
+		newCount = country.Count + 1
+	} else {
+		if (country.Count > 0) {
+			newCount = country.Count - 1
+		}
+	}
+
+	db.Model(&country).Update("count", newCount)
+
+	ctx.JSON(country)
 }
